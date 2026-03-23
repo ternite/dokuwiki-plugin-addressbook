@@ -22,6 +22,7 @@ class syntax_plugin_addressbook extends DokuWiki_Syntax_Plugin {
     
     private $instance = 0;
     private $showCount = 0;
+    private $saveOnce = 0;
     
     function getSort(){
         return 158;
@@ -164,12 +165,14 @@ class syntax_plugin_addressbook extends DokuWiki_Syntax_Plugin {
 		# Certain actions could cause double saving, which is avoided by counting
 		if ($action=='savedata' && $this->saveOnce == 0 && $this->editor){
 			$this->saveOnce++;
-			$contact_id = $_REQUEST['editcontact'];
+			if (array_key_exists('editcontact',$_REQUEST))
+                $contact_id = $_REQUEST['editcontact'];
 			$cinfo = $this->loadFormData(); # Loads form data concerning the contact
 			$res = $this->saveData($cinfo);
 			if (!$res) {
 				$action = 'edit';
-				$contact_id = $_REQUEST['contactid'];
+                if (array_key_exists('contactid',$_REQUEST))
+                    $contact_id = $_REQUEST['contactid'];
 			} else { # Clear all
 				unset($_REQUEST);
 				unset ($cinfo);
@@ -523,7 +526,10 @@ class syntax_plugin_addressbook extends DokuWiki_Syntax_Plugin {
         
         $keys = $this->getKeys();#Array('firstname','surname','cfunction','description');
         
-        foreach ($keys as $k) $res[$k] = $_REQUEST[$k];
+        foreach ($keys as $k) {
+            if (array_key_exists($k,$_REQUEST))
+                $res[$k] = $_REQUEST[$k];
+        }
         
         # Validate and load photo data
         if (isset($_FILES) && $_FILES['photo']['error'] == UPLOAD_ERR_OK && $_FILES['photo']['tmp_name']!='') {
@@ -577,6 +583,8 @@ class syntax_plugin_addressbook extends DokuWiki_Syntax_Plugin {
                 $info['photo'] = $_REQUEST['blob'];
                 # msg("Keep existing photo",2);
             }
+            
+            $blob = null;
             
             if ($info['photo']!== false) $blob = $info['photo'];
             
