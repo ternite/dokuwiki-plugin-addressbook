@@ -374,7 +374,9 @@ class syntax_plugin_addressbook extends DokuWiki_Syntax_Plugin {
         $out .= '<input type="hidden" name="contactid" value="'.$contact_id.'" />';
         
         $out .= '<input type="text" name="department" placeholder="'.$this->getLang('form department').'" value="'.(isset($cinfo)?$cinfo['department']:'').'">';
-        /* // das Feld firstname nutzen wir nicht: $out .= '<input type="text" name="firstname" placeholder="'.$this->getLang('form firstname').'" value="'.(isset($cinfo)?$cinfo['firstname']:'').'">';*/
+        // // das Feld firstname nutzen wir nicht, müssen es aber wenigstens mit dem Wert '' belegen.
+        $out .= '<input type="hidden" name="firstname" placeholder="'.$this->getLang('form firstname').'" value="">';
+        
         $out .= '<input type="text" name="surname" placeholder="'.$this->getLang('form surname').'" value="'.(isset($cinfo)?$cinfo['surname']:'').'"><br/>';
         $out .= '<input type="text" name="tel2" placeholder="'.$this->getLang('form tel2').'" value="'.(isset($cinfo)?$cinfo['tel2']:'').'">';
         $out .= '<input type="text" name="cfunction" placeholder="'.$this->getLang('form function').'" value="'.(isset($cinfo)?$cinfo['cfunction']:'').'"><br/>';
@@ -596,6 +598,9 @@ class syntax_plugin_addressbook extends DokuWiki_Syntax_Plugin {
                         (";
                 
                 foreach ($keys as $k) {
+                    if (is_null($info[$k])) {
+                        $info[$k] = '';
+                    }
                     if ($k != 'photo') $sql .= "'".$info[$k]."',";
                     if ($k == 'photo') $sql .= "'$blob'";
                 }
@@ -1284,7 +1289,13 @@ class syntax_plugin_addressbook extends DokuWiki_Syntax_Plugin {
             $sql = "INSERT INTO addresslist
                     (firstname,surname,cfunction,tel1,tel2,fax,email,department,description,photo) VALUES 
                     (";
-            foreach ($res as $k=>$r) $sql.= "'$r'".($k=='photo'? ')':',');
+            foreach ($res as $k=>$r)  {
+                if (is_null($r)) {
+                    $r = '';
+                }
+                
+                $sql.= "'$r'".($k=='photo'? ')':',');
+            }
             $query = $sqlite->query($sql);
         }
     }
