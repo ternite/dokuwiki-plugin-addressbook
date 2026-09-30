@@ -35,7 +35,7 @@ class action_plugin_addressbook extends DokuWiki_Action_Plugin {
         if (!$list) return;
   
   
-        $res .= '<div class="plugin_addressbook_searchpage">';
+        $res = '<div class="plugin_addressbook_searchpage">';
         $res .= '<h2>'.$this->getLang('results msg').':</h2>';
         
         $syntax = plugin_load('syntax', 'addressbook');
@@ -47,7 +47,7 @@ class action_plugin_addressbook extends DokuWiki_Action_Plugin {
         
         
         
-        foreach ($found as $f) $res .= $syntax->showcontact($f['id']);
+        //foreach ($found as $f) $res .= $syntax->showcontact($f['id']);
         
         $res .= '</div>';
 
